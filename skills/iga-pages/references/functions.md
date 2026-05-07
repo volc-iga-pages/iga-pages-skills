@@ -81,18 +81,33 @@ export default async function handler(request, response) {
 
 Export an Express or Koa app instance as the default export. The file must use `[[default]].js` naming so all sub-paths are forwarded to the framework's router. Do **not** call `app.listen()`.
 
+### Path Mapping (Important)
+
+The file lives under `api/`, so IGA Pages mounts the entire app at the **`/api` prefix**. Routes you define inside Express/Koa are **relative to `/api`** — the framework sees the path with `/api` already stripped.
+
+| File location           | Route in code           | Public URL       |
+| ----------------------- | ----------------------- | ---------------- |
+| `api/[[default]].js`    | `app.get("/users")`     | `/api/users`     |
+| `api/[[default]].js`    | `app.get("/users/:id")` | `/api/users/123` |
+| `api/[[default]].js`    | `app.get("/")`          | `/api`           |
+| `api/v1/[[default]].js` | `app.get("/users")`     | `/api/v1/users`  |
+
+Common mistake: writing `app.get("/api/users", ...)` inside the file — this would be reachable at `/api/api/users`. Drop the `/api` prefix in your route definitions.
+
+Frontend `fetch` calls must still use the full public path (e.g. `fetch("/api/users")`).
+
 ### Express
 
 ```js
-// api/[[default]].js
+// api/[[default]].js  →  mounted at /api
 import express from "express";
 
 const app = express();
 app.use(express.json());
 
-app.get("/users", (req, res) => res.json({ users: [] }));
-app.post("/users", (req, res) => res.status(201).json({ user: req.body }));
-app.get("/users/:id", (req, res) => res.json({ user: req.params.id }));
+app.get("/users", (req, res) => res.json({ users: [] })); // → /api/users
+app.post("/users", (req, res) => res.status(201).json({ user: req.body })); // → /api/users
+app.get("/users/:id", (req, res) => res.json({ user: req.params.id })); // → /api/users/:id
 
 export default app;
 ```
@@ -100,7 +115,7 @@ export default app;
 ### Koa
 
 ```js
-// api/[[default]].js
+// api/[[default]].js  →  mounted at /api
 import Koa from "koa";
 import Router from "@koa/router";
 import bodyParser from "koa-bodyparser";
@@ -111,9 +126,11 @@ const router = new Router();
 app.use(bodyParser());
 
 router.get("/users", (ctx) => {
+  // → /api/users
   ctx.body = { users: [] };
 });
 router.post("/data", (ctx) => {
+  // → /api/data
   ctx.status = 201;
   ctx.body = { data: ctx.request.body };
 });
@@ -129,5 +146,5 @@ export default app;
 `iga pages dev` watches `api/` for changes and hot-reloads functions automatically — no restart required.
 
 ```bash
-iga pages dev        # starts dev server, API routes active at /api/...
+iga pages dev        # framework + API routes, /api/... live
 ```

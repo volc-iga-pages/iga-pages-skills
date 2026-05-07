@@ -3,7 +3,7 @@ name: iga-pages
 description: Deploy frontend and full-stack projects to IGA Pages. Use when the user mentions IGA Pages or requests deployment ("deploy my app", "publish this site", "push this live", "deploy and give me the link", "create a preview deployment", "deploy to IGA Pages", "ship to production"), or wants to develop an API ("write an API", "create an endpoint", "build a backend service").
 metadata:
   author: iga-pages
-  version: "1.0.5"
+  version: "1.0.6"
 ---
 
 # IGA Pages Skill
@@ -14,7 +14,7 @@ Run `iga <command> -h` for full flag details.
 
 ## Critical: CLI Version
 
-The `@iga-pages/cli` version must be **>= 1.0.3**. Check with `iga --version`; if it's older (or not installed), upgrade before running any other command:
+The `@iga-pages/cli` version must be **>= 1.0.5**. Check with `iga --version`; if it's older (or not installed), upgrade before running any other command:
 
 ```bash
 npm i -g @iga-pages/cli@latest
@@ -70,7 +70,7 @@ iga pages deploy --name <my-app>   # deploy (auto-creates project on first run)
 iga pages deploy
 
 iga pages link                     # link to existing project without deploying
-iga pages dev                      # local dev server
+iga pages dev                      # local dev server (REQUIRED when api/ exists — serves framework + /api/* together)
 iga pages build                    # build for production
 ```
 
@@ -85,3 +85,4 @@ iga pages build                    # build for production
 - Deploy without login → always `iga login` first
 - Committing `.iga/` → it's auto-gitignored, don't remove the entry
 - `provider: "upload_v2"` with GitHub remote → delete `.iga/project.json` and redeploy to switch to Git deploy
+- Starting local dev with `npm run dev` / `vite` / `next dev` / `npm start` when `api/` exists → use `iga pages dev` so serverless functions are served
