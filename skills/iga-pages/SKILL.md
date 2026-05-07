@@ -86,3 +86,4 @@ iga pages build                    # build for production
 - Committing `.iga/` → it's auto-gitignored, don't remove the entry
 - `provider: "upload_v2"` with GitHub remote → delete `.iga/project.json` and redeploy to switch to Git deploy
 - Starting local dev with `npm run dev` / `vite` / `next dev` / `npm start` when `api/` exists → use `iga pages dev` so serverless functions are served
+- Setting `package.json` `"scripts.dev"` to `iga pages dev` → infinite loop, since `iga pages dev` itself invokes the `dev` script from `package.json`. Keep `"scripts.dev"` as the framework's own dev command (e.g. `next dev`, `vite`)
